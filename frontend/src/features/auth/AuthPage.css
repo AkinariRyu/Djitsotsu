@@ -1,0 +1,117 @@
+/* src/features/auth/AuthPage.css */
+
+.auth-root {
+  min-height: 100vh;
+  background: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Крапковий фон (Screentone) */
+.auth-root::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(#333 1px, transparent 1px);
+  background-size: 15px 15px;
+  z-index: 1;
+}
+
+.auth-panel {
+  background: #fff;
+  border: 8px solid #000;
+  width: 100%;
+  max-width: 450px;
+  padding: 40px;
+  position: relative;
+  z-index: 5;
+  transform: rotate(-1deg);
+  box-shadow: 20px 20px 0px #cc0000; /* Червона тінь для агресивності */
+}
+
+/* "Наліпка" з типом форми */
+.form-badge {
+  position: absolute;
+  top: -25px;
+  left: 20px;
+  background: #000;
+  color: #fff;
+  padding: 5px 25px;
+  font-family: 'Bangers';
+  font-size: 2rem;
+  transform: rotate(-3deg);
+}
+
+.auth-title {
+  font-family: 'Bangers';
+  font-size: 3rem;
+  text-align: center;
+  margin-bottom: 30px;
+  border-bottom: 4px solid #000;
+}
+
+/* Стилізація інпутів */
+.manga-input-group {
+  margin-bottom: 20px;
+}
+
+.manga-input-group label {
+  display: block;
+  font-family: 'Bangers';
+  font-size: 1.2rem;
+  margin-bottom: 5px;
+}
+
+.manga-input {
+  width: 100%;
+  border: 4px solid #000;
+  padding: 12px;
+  font-family: sans-serif;
+  font-weight: bold;
+  font-size: 1rem;
+  outline: none;
+  transition: 0.2s;
+}
+
+.manga-input:focus {
+  background: #f0f0f0;
+  transform: translate(4px, 4px);
+  box-shadow: -4px -4px 0 #000;
+}
+
+/* Кнопка відправки */
+.submit-btn {
+  width: 100%;
+  background: #000;
+  color: #fff;
+  border: none;
+  padding: 15px;
+  font-family: 'Bangers';
+  font-size: 2rem;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: 0.2s;
+}
+
+.submit-btn:hover {
+  background: #cc0000;
+  transform: scale(1.02);
+}
+
+/* Перемикач між Login/Register */
+.toggle-text {
+  margin-top: 20px;
+  text-align: center;
+  font-family: 'Bangers';
+  font-size: 1.2rem;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.toggle-text:hover {
+  color: #cc0000;
+}

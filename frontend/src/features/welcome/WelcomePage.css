@@ -1,0 +1,125 @@
+/* src/features/welcome/WelcomePage.css */
+
+.splash-root {
+  --ink: #000;
+  --paper: #fff;
+  min-height: 100vh;
+  background: var(--paper);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+  font-family: 'Bangers', cursive;
+}
+
+/* Ефект "Ліній швидкості" (Action Lines) */
+.action-lines {
+  position: absolute;
+  inset: 0;
+  background: repeating-conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    transparent 2deg,
+    rgba(0,0,0,0.05) 2.1deg,
+    transparent 2.2deg
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Головна панель (як центральний кадр) */
+.main-frame {
+  position: relative;
+  z-index: 5;
+  width: 100%;
+  max-width: 900px;
+  padding: 20px;
+  text-align: center;
+}
+
+/* Назва проекту - Гігантська і агресивна */
+.manga-title {
+  font-size: clamp(5rem, 15vw, 10rem);
+  line-height: 0.8;
+  margin: 0;
+  text-transform: uppercase;
+  -webkit-text-stroke: 3px var(--ink);
+  color: transparent;
+  position: relative;
+  display: inline-block;
+  transform: skew(-5deg) rotate(-2deg);
+}
+
+.manga-title::before {
+  content: attr(data-text);
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  color: var(--ink);
+  z-index: -1;
+}
+
+/* Наративна плашка (як текст автора внизу кадру) */
+.narration-box {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 10px 40px;
+  font-size: 1.5rem;
+  display: inline-block;
+  margin: 40px 0;
+  border: 2px solid var(--paper);
+  outline: 3px solid var(--ink);
+  transform: rotate(1deg);
+}
+
+/* Контейнер кнопок */
+.welcome-actions {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  margin-top: 20px;
+}
+
+/* Кнопки-вигуки */
+.impact-btn {
+  background: var(--paper);
+  border: 5px solid var(--ink);
+  padding: 15px 40px;
+  font-family: 'Bangers';
+  font-size: 2.5rem;
+  cursor: pointer;
+  position: relative;
+  transition: 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.impact-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 2px solid var(--ink);
+  transform: translate(8px, 8px);
+  z-index: -1;
+}
+
+.impact-btn:hover {
+  transform: translate(-4px, -4px) scale(1.1);
+  background: var(--ink);
+  color: var(--paper);
+  box-shadow: 12px 12px 0px rgba(0,0,0,0.1);
+}
+
+.impact-btn-alt {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+/* SFX - Звукові ефекти розкидані по екрану */
+.sfx-layer {
+  position: absolute;
+  font-family: 'Permanent Marker';
+  font-size: 6rem;
+  color: rgba(0,0,0,0.1);
+  pointer-events: none;
+  z-index: 2;
+}

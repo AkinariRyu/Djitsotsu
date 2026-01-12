@@ -1,0 +1,71 @@
+/* src/styles/global.css */
+
+/* 1. Підключення шрифтів */
+@import url('https://fonts.googleapis.com/css2?family=Bangers&family=Inter:wght@400;700&family=Permanent+Marker&display=swap');
+
+/* 2. Глобальні змінні */
+:root {
+  --manga-black: #000000;
+  --manga-white: #ffffff;
+  --manga-gray: #f0f0f0;
+  --manga-border: 4px solid #000000;
+  --manga-font-hero: 'Bangers', sans-serif;
+  --manga-font-text: 'Inter', sans-serif;
+  --manga-font-sfx: 'Permanent Marker', cursive;
+}
+
+/* 3. Базові налаштування */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--manga-white);
+  color: var(--manga-black);
+  font-family: var(--manga-font-text);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* 4. Стилізація виділення тексту (в стилі манги) */
+::selection {
+  background-color: var(--manga-black);
+  color: var(--manga-white);
+}
+
+/* 5. Заголовки */
+h1, h2, h3 {
+  font-family: var(--manga-font-hero);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* 6. Кастомний скроллбар (чорно-білий) */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--manga-white);
+  border-left: 2px solid var(--manga-black);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--manga-black);
+}
+
+/* 7. Допоміжні класи для ефектів */
+.manga-panel {
+  border: var(--manga-border);
+  background: var(--manga-white);
+  box-shadow: 10px 10px 0px rgba(0, 0, 0, 1);
+}
+
+.halftone-bg {
+  background-image: radial-gradient(var(--manga-black) 1px, transparent 0);
+  background-size: 4px 4px;
+  opacity: 0.1;
+}

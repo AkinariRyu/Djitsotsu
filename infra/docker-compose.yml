@@ -1,3 +1,5 @@
+name: djitsotsu
+
 services:
   postgres:
     image: postgres:16-alpine
@@ -26,6 +28,66 @@ services:
       interval: 5s
       timeout: 3s
       retries: 5
+
+  auth:
+    build:
+      context: ..
+      dockerfile: services/auth/Dockerfile
+    container_name: djitsotsu-auth
+    ports:
+      - "${AUTH_PORT:-5401}:5401"
+    env_file: .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  gateway:
+    build:
+      context: ..
+      dockerfile: services/gateway/Dockerfile
+    container_name: djitsotsu-gateway
+    ports:
+      - "${GATEWAY_PORT:-5400}:5400"
+    env_file: .env
+    depends_on:
+      - auth
+
+  guilds:
+    build:
+      context: ..
+      dockerfile: services/guilds/Dockerfile
+    container_name: djitsotsu-guilds
+    ports:
+      - "${GUILDS_PORT:-5402}:5402"
+    env_file: .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  chat:
+    build:
+      context: ..
+      dockerfile: services/chat/Dockerfile
+    container_name: djitsotsu-chat
+    ports:
+      - "${CHAT_PORT:-5403}:5403"
+    env_file: .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  voice:
+    build:
+      context: ..
+      dockerfile: services/voice/Dockerfile
+    container_name: djitsotsu-voice
+    ports:
+      - "${VOICE_PORT:-5404}:5404"
+    env_file: .env
 
 volumes:
   postgres_data:

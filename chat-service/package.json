@@ -1,6 +1,0 @@
-{
-  "name": "chat-service",
-  "version": "0.1.0",
-  "private": true,
-  "description": "Chat & Messages service - NestJS"
-}

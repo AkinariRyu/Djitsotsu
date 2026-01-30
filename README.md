@@ -1,56 +1,47 @@
 # Djitsotsu
 
-Discord-клон з манга-стилем UI: авторизація, текстові/категорійні канали, приватні чати, ролі, нотифікації. Архітектура на мікросервісах.
+Discord-клон з манга-стилем. Мікросервісна архітектура.
+
+## Структура
+
+```
+├── services/          # Мікросервіси (NestJS)
+│   ├── auth/          # Авторизація, JWT, профілі
+│   ├── gateway/       # API Gateway, WebSocket
+│   ├── chat/          # Повідомлення, історія чатів
+│   ├── guilds/        # Сервери, канали, ролі
+│   └── voice/         # Голосові канали (заглушка)
+├── apps/
+│   └── web/           # Next.js фронтенд
+├── infra/             # Docker, docker-compose для локальної розробки
+└── packages/          # Спільні пакети (опціонально)
+```
 
 ## Вимоги
 
-- **Node.js** LTS (v18+)
-- **Yarn** 1.x (package manager)
-- **Docker** та **Docker Compose**
-- **Git**
+- Node.js 20+
+- Yarn
+- Docker & Docker Compose
 
-## Перевірка середовища
+## Запуск
 
 ```bash
-node --version   # v20.x
-yarn --version   # 1.22.x
-docker --version
-docker compose version
-git --version
+# Копіювати конфіг
+cp infra/.env.example infra/.env
+
+# Підняти інфраструктуру
+yarn docker:up
 ```
 
-## Структура проєкту
+## Порти
 
-```
-├── gateway/          # API Gateway (NestJS)
-├── users-service/    # Сервіс користувачів та авторизації
-├── guilds-service/   # Сервіс серверів/гільдій та каналів
-├── chat-service/     # Сервіс повідомлень
-├── voice-service/    # Заглушка для голосових каналів
-├── frontend/         # Next.js клієнт (манга-стиль)
-└── infra/            # Docker, docker-compose, .env
-```
-
-## Порты
-
-| Сервіс       | Порт  |
-|-------------|-------|
-| Frontend    | 4300  |
-| Gateway     | 5400  |
-| Users       | 5401  |
-| Guilds      | 5402  |
-| Chat        | 5403  |
-| Voice       | 5404  |
-| PostgreSQL  | 5543  |
-| Redis       | 6390  |
-
-## Початок роботи
-
-1. Скопіювати `infra/.env.example` в `infra/.env`
-2. Запустити інфраструктуру: `docker compose -f infra/docker-compose.yml up -d`
-3. Встановити залежності: `yarn install`
-4. Детальні інструкції будуть додані в наступних етапах
-
-## Розробка
-
-Проєкт використовує **Yarn** як основний package manager.
+| Сервіс    | Порт |
+|-----------|------|
+| Gateway   | 5400 (Swagger: /docs) |
+| Auth      | 5401 |
+| Guilds    | 5402 |
+| Chat      | 5403 |
+| Voice     | 5404 |
+| Web       | 4300 |
+| PostgreSQL| 5543 |
+| Redis     | 6390 |

@@ -1,0 +1,9 @@
+{
+  "name": "@djitsotsu/web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "echo 'Next.js will be added'",
+    "build": "echo 'Next.js will be added'"
+  }
+}

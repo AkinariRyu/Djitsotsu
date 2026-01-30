@@ -1,0 +1,23 @@
+{
+  "name": "djitsotsu",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Discord clone with manga-style UI - microservices architecture",
+  "workspaces": [
+    "gateway",
+    "users-service",
+    "guilds-service",
+    "chat-service",
+    "voice-service",
+    "frontend"
+  ],
+  "scripts": {
+    "install:all": "yarn install",
+    "docker:up": "docker compose -f infra/docker-compose.yml up -d",
+    "docker:down": "docker compose -f infra/docker-compose.yml down"
+  },
+  "packageManager": "yarn@1.22.22",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

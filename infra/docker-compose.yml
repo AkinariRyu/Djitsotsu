@@ -1,0 +1,35 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: djitsotsu-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-djitsotsu}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-djitsotsu}
+      POSTGRES_DB: ${POSTGRES_DB:-djitsotsu}
+    ports:
+      - "${POSTGRES_PORT:-5543}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-djitsotsu}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: djitsotsu-redis
+    ports:
+      - "${REDIS_PORT:-6390}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  postgres_data:
+
+networks:
+  default:
+    name: djitsotsu-network

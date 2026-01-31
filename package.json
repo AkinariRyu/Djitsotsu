@@ -8,6 +8,7 @@
     "apps/*"
   ],
   "scripts": {
+    "build": "nest build",
     "docker:up": "docker compose -f infra/docker-compose.yml up -d",
     "docker:down": "docker compose -f infra/docker-compose.yml down",
     "docker:build": "docker compose -f infra/docker-compose.yml build"

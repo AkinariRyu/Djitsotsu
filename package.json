@@ -16,5 +16,8 @@
   "packageManager": "yarn@1.22.22",
   "engines": {
     "node": ">=20.0.0"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^11.0.16"
   }
 }

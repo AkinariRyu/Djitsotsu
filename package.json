@@ -8,6 +8,7 @@
     "apps/*"
   ],
   "scripts": {
+    "build": "nest build",
     "docker:up": "docker compose -f infra/docker-compose.yml up -d",
     "docker:down": "docker compose -f infra/docker-compose.yml down",
     "docker:build": "docker compose -f infra/docker-compose.yml build"
@@ -15,5 +16,8 @@
   "packageManager": "yarn@1.22.22",
   "engines": {
     "node": ">=20.0.0"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^11.0.16"
   }
 }

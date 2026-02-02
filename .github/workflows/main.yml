@@ -1,22 +1,21 @@
-name: Djitsostu CI
-
+name: Release
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-
+    branches:
+      - main
 jobs:
-  build-and-test:
+  release:
+    name: Release
     runs-on: ubuntu-latest
-    
-    defaults:
-      run:
-        working-directory: ./core
-
+    permissions:
+      contents: write 
+      issues: write
+      pull-requests: write
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -25,8 +24,12 @@ jobs:
           cache: 'yarn'
           cache-dependency-path: core/yarn.lock
 
-      - name: Install Dependencies
+      - name: Install dependencies
         run: yarn install --frozen-lockfile
-        
-      - name: Lint & Build Placeholder
-        run: echo "Тут буде білд мікросервісів"
+        working-directory: ./core
+
+      - name: Run Semantic Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx semantic-release
+        working-directory: ./core

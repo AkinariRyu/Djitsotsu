@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: djitsostu_postgres
+    environment:
+      POSTGRES_PASSWORD: root
+      POSTGRES_USER: admin
+      POSTGRES_DB: djitsostu
+    ports:
+      - "5543:5432"
+    networks:
+      - djitsostu_net
+
+  redis:
+    image: redis:7-alpine
+    container_name: djitsostu_redis
+    ports:
+      - "6390:6379"
+    networks:
+      - djitsostu_net
+
+  cassandra:
+    image: cassandra:4.1
+    container_name: djitsostu_cassandra
+    ports:
+      - "9042:9042"
+    environment:
+      CASSANDRA_DC: "dc1"
+      CASSANDRA_ENDPOINT_SNITCH: "GossipingPropertyFileSnitch"
+    networks:
+      - djitsostu_net
+
+networks:
+  djitsostu_net:
+    driver: bridge

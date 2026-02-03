@@ -1,0 +1,10 @@
+node_modules/
+dist/
+artifacts/
+coverage/
+*.log
+.env
+.env.test
+.env.production
+.DS_Store
+Thumbs.db

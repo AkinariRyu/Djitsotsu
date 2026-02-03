@@ -3,7 +3,7 @@ import { AppModule } from './app.module';
 import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import helmet from 'helmet';
-import { setupSwagger } from './config/swagger.config';
+import { setupSwagger } from './core/config/swagger.config';
 
 async function bootstrap() {
   const logger = new Logger('GatewayBootstrap');

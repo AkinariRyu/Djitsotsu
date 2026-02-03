@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
-import { envSchema } from './config/env.validation';
-import { HealthModule } from './health/health.module';
+import { envSchema } from './core/config/env.validation';
+import { HealthModule } from './modules/health/health.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -11,7 +12,6 @@ import { HealthModule } from './health/health.module';
       envFilePath: '.env',
       validationSchema: envSchema,
     }),
-    
     ThrottlerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -20,8 +20,8 @@ import { HealthModule } from './health/health.module';
         limit: config.get<number>('THROTTLE_LIMIT', 10),
       }],
     }),
-    
     HealthModule,
+    AuthModule,
   ],
   controllers: [],
   providers: [],

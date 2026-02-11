@@ -20,7 +20,11 @@ model User {
   phone         String?   @unique
   nickname      String?
   tag           String?
+
   avatarUrl     String?
+  provider      String?
+  providerId    String?
+
   role          Role      @default(USER)
   isVerified    Boolean   @default(false)
   

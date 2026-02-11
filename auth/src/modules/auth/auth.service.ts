@@ -55,6 +55,36 @@ export class AuthService {
     };
   }
 
+  async validateOAuthLogin(profile: any, userAgent: string, ip: string) {
+    let user = await this.prisma.user.findFirst({
+      where: { email: profile.email },
+    });
+
+    if (!user) {
+      user = await this.prisma.user.create({
+        data: {
+          email: profile.email,
+          nickname: profile.firstName || `User_${Math.floor(Math.random() * 1000)}`,
+          avatarUrl: profile.picture,
+          provider: profile.provider,
+          providerId: profile.providerId,
+          tag: generateTag(),
+          isVerified: true,
+        },
+      });
+    } else {
+      user = await this.prisma.user.update({
+        where: { id: user.id },
+        data: {
+          avatarUrl: profile.picture,
+          provider: 'google',
+        },
+      });
+    }
+
+    return this.createSession(user.id, user.role, userAgent, ip);
+  }
+
   private async registerNewUser(identifier: string) {
     const isEmail = identifier.includes('@');
     
@@ -93,5 +123,36 @@ export class AuthService {
     );
 
     return { accessToken, refreshToken };
+  }
+
+  async logout(refreshToken: string) {
+    return this.prisma.session.delete({
+      where: { refreshToken },
+    }).catch(() => {
+      return { success: true };
+    });
+  }
+
+  async refreshTokens(refreshToken: string, userAgent: string, ip: string) {
+    const session = await this.prisma.session.findUnique({
+      where: { refreshToken },
+    });
+
+    if (!session) {
+      throw new BadRequestException('Invalid Refresh Token');
+    }
+
+    if (new Date() > session.expiresAt) {
+      await this.prisma.session.delete({ where: { id: session.id } });
+      throw new BadRequestException('Session expired');
+    }
+
+    await this.prisma.session.delete({ where: { id: session.id } });
+
+    const user = await this.prisma.user.findUnique({ where: { id: session.userId } });
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+    return this.createSession(user.id, user.role, userAgent, ip);
   }
 }

@@ -7,6 +7,7 @@ import { AuthController } from './modules/auth/auth.controller';
 import { JwtStrategy } from './modules/auth/strategies/jwt.strategy';
 import { PrismaService } from './core/database/prisma.service';
 import { RedisModule } from './core/database/redis.module';
+import { GoogleStrategy } from './modules/auth/strategies/google.strategy';
 
 @Module({
   imports: [
@@ -23,7 +24,7 @@ import { RedisModule } from './core/database/redis.module';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, PrismaService],
+  providers: [AuthService, JwtStrategy, GoogleStrategy, PrismaService],
   exports: [AuthService],
 })
 export class AuthModule {}

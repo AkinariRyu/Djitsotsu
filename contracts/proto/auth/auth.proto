@@ -15,6 +15,10 @@ service AuthService {
   rpc Logout (LogoutRequest) returns (LogoutResponse) {}
   //social login (Google)
   rpc SocialLogin (SocialLoginRequest) returns (LoginResponse) {}
+  //Send OTP
+  rpc SendOtp (SendOtpRequest) returns (SendOtpResponse) {}
+  //Verify OTP
+  rpc VerifyOtp (VerifyOtpRequest) returns (LoginResponse) {}
 }
 
 
@@ -56,4 +60,18 @@ message SocialLoginRequest {
   string avatar_url = 3;
   string provider = 4;
   string provider_id = 5;
+}
+
+message SendOtpRequest {
+  string identifier = 1;
+}
+
+message SendOtpResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message VerifyOtpRequest {
+  string identifier = 1;
+  string code = 2;
 }

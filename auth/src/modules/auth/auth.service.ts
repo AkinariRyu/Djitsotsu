@@ -96,7 +96,6 @@ export class AuthService {
     return { user, ...tokens };
   }
 
-
   async socialLogin(data: { email: string; firstName: string; avatarUrl: string; provider: string; providerId: string }, ip: string, userAgent: string) {
     let user = await this.prisma.user.findFirst({ where: { email: data.email } });
 
@@ -115,12 +114,16 @@ export class AuthService {
     } else {
       user = await this.prisma.user.update({
         where: { id: user.id },
-        data: { avatarUrl: data.avatarUrl, provider: data.provider },
+        data: { 
+          avatarUrl: data.avatarUrl, 
+          provider: data.provider,
+          providerId: data.providerId 
+        },
       });
     }
 
     return this.createSession(user.id, user.role, userAgent, ip);
-  }
+}
 
   async validateToken(token: string) {
     try {
@@ -134,20 +137,30 @@ export class AuthService {
   }
 
   async refreshTokens(refreshToken: string, ip: string, userAgent: string) {
-    const session = await this.prisma.session.findUnique({ where: { refreshToken } });
+    const session = await this.prisma.session.findUnique({ 
+      where: { refreshToken },
+      include: { user: true } 
+    });
 
-    if (!session) throw new UnauthorizedException('Invalid Refresh Token');
+    if (!session) {
+      this.logger.warn(`Attempt to use non-existent refresh token: ${refreshToken}`);
+      throw new UnauthorizedException('Invalid Refresh Token');
+    }
+
+    if (session.ip !== ip || session.userAgent !== userAgent) {
+      this.logger.error(`Session theft attempt! IP/UA mismatch for user ${session.userId}`);
+      await this.prisma.session.deleteMany({ where: { userId: session.userId } });
+      throw new UnauthorizedException('Security breach suspected');
+    }
+
     if (new Date() > session.expiresAt) {
       await this.prisma.session.delete({ where: { id: session.id } });
       throw new UnauthorizedException('Session expired');
     }
 
     await this.prisma.session.delete({ where: { id: session.id } });
-    const user = await this.prisma.user.findUnique({ where: { id: session.userId } });
-    
-    if (!user) throw new UnauthorizedException('User not found');
 
-    return this.createSession(user.id, user.role, userAgent, ip);
+    return this.createSession(session.user.id, session.user.role, userAgent, ip);
   }
 
   async logout(refreshToken: string) {
@@ -155,10 +168,9 @@ export class AuthService {
       await this.prisma.session.delete({ where: { refreshToken } });
       return { success: true };
     } catch (e) {
-      return { success: false };
+      return { success: true };
     }
   }
-
   private async registerNewUser(identifier: string) {
     const isEmail = identifier.includes('@');
     const tempNickname = isEmail ? identifier.split('@')[0] : `User${identifier.slice(-4)}`;
@@ -184,7 +196,10 @@ export class AuthService {
 
     const accessToken = this.jwtService.sign(
       { sub: userId, role },
-      { expiresIn: this.config.get('JWT_EXPIRATION'), secret: this.config.get('JWT_SECRET') },
+      { 
+        expiresIn: this.config.get('JWT_EXPIRATION'), 
+        secret: this.config.get('JWT_SECRET') 
+      },
     );
 
     return { accessToken, refreshToken };

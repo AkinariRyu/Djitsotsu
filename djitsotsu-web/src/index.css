@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  background-color: #fdfdfd;
+  color: #0a0a0a;
+}
+
+@layer utilities {
+  .bg-dot-pattern {
+    background-image: radial-gradient(#0a0a0a 1px, transparent 1px);
+    background-size: 10px 10px;
+    opacity: 0.1;
+  }
+
+  .heavy-border {
+    @apply border-3 border-ink-black shadow-solid transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-solid-sm;
+  }
+}

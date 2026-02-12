@@ -7,15 +7,19 @@ import { setupSwagger } from './core/config/swagger.config';
 
 async function bootstrap() {
   const logger = new Logger('GatewayBootstrap');
+  
   const app = await NestFactory.create(AppModule);
+  
   const configService = app.get(ConfigService);
 
   app.use(helmet());
 
   app.enableCors({
-    origin: configService.get('CORS_ORIGIN'),
+    origin: configService.get('CORS_ORIGIN') || '*',
     credentials: true,
   });
+
+  app.setGlobalPrefix('api');
 
   app.enableVersioning({
     type: VersioningType.URI,
@@ -27,15 +31,19 @@ async function bootstrap() {
       whitelist: true,
       forbidNonWhitelisted: true,
       transform: true,
+      transformOptions: {
+        enableImplicitConversion: true,
+      },
     }),
   );
 
   setupSwagger(app);
 
   const port = configService.get<number>('PORT') || 3000;
+  
   await app.listen(port);
   
-  logger.log(`Gateway running on port ${port}`);
-  logger.log(`Swagger running at http://localhost:${port}/api/docs`);
+  logger.log(`Gateway is running on: http://localhost:${port}/api/v1`);
+  logger.log(`Swagger is running on: http://localhost:${port}/api/docs`);
 }
 bootstrap();

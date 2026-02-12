@@ -1,21 +1,23 @@
 import { NestFactory } from '@nestjs/core';
 import { AuthModule } from './app.module';
-import { Logger, ValidationPipe } from '@nestjs/common';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { AUTH_PACKAGE_NAME } from '@contracts/auth/auth.generated';
+import { join } from 'path';
+import { Logger } from '@nestjs/common';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AuthModule);
+  const logger = new Logger('AuthBootstrap');
 
-  app.useGlobalPipes(new ValidationPipe({
-    whitelist: true,
-    transform: true,
-  }));
+  const app = await NestFactory.createMicroservice<MicroserviceOptions>(AuthModule, {
+    transport: Transport.GRPC,
+    options: {
+      url: '0.0.0.0:50051',
+      package: AUTH_PACKAGE_NAME,
+      protoPath: join(process.cwd(), '../contracts/proto/auth/auth.proto'),
+    },
+  });
 
-  app.enableCors();
-
-  const port = process.env.PORT || 3001;
-  await app.listen(port);
-
-  Logger.log(`Server is running on: http://localhost:${port}`);
-  Logger.log(`Auth routes are at: http://localhost:${port}/auth/send-otp`);
+  await app.listen();
+  logger.log('Microservice is listening on grpc://0.0.0.0:50051');
 }
 bootstrap();

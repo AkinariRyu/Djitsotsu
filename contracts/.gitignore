@@ -1,0 +1,4 @@
+node_modules
+auth/auth.generated.ts
+dist
+*.log

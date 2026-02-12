@@ -1,0 +1,20 @@
+{
+  "name": "@djitsotsu/contracts",
+  "version": "1.0.0",
+  "description": "gRPC contracts and types for Djitsotsu microservices",
+  "main": "index.ts",
+  "scripts": {
+    "generate": "protoc --plugin=./node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=. --ts_proto_opt=nestJs=true --ts_proto_opt=fileSuffix=.generated --ts_proto_opt=addGrpcMetadata=true --proto_path=./proto ./proto/auth/auth.proto"
+  },
+  "dependencies": {
+    "@grpc/grpc-js": "^1.10.0",
+    "@grpc/proto-loader": "^0.7.10",
+    "@nestjs/common": "^10.0.0",
+    "@nestjs/microservices": "^10.0.0",
+    "rxjs": "^7.8.0"
+  },
+  "devDependencies": {
+    "ts-proto": "^1.166.0",
+    "typescript": "^5.3.0"
+  }
+}

@@ -1,70 +1,93 @@
-import { Body, Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
+import { Controller } from '@nestjs/common';
+import { GrpcMethod } from '@nestjs/microservices';
 import { AuthService } from './auth.service';
-import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import type { 
+  RegisterRequest, RegisterResponse, 
+  LoginRequest, LoginResponse,
+  ValidateRequest, ValidateResponse,
+  RefreshRequest, LogoutRequest, LogoutResponse,
+  SocialLoginRequest, 
+} from '@contracts/auth/auth.generated';
+import { AUTH_SERVICE_NAME } from '@contracts/auth/auth.generated';
 
-@Controller('auth')
+@Controller()
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post('send-otp')
-  async sendOtp(@Body('identifier') identifier: string) {
-    return this.authService.sendOtp(identifier);
+  @GrpcMethod(AUTH_SERVICE_NAME, 'Register')
+  async register(data: RegisterRequest): Promise<RegisterResponse> {
+    try {
+      const user = await this.authService.register(data);
+      return {
+        status: 201,
+        error: '',
+        userId: Number(user.id)
+      };
+    } catch (e) {
+      return { status: 400, error: e.message, userId: 0 };
+    }
   }
 
-  @Post('verify-otp')
-  async verifyOtp(
-    @Body('identifier') identifier: string,
-    @Body('code') code: string,
-    @Req() req: any,
-  ) {
-    const userAgent = req.headers['user-agent'] || 'Unknown';
-    const ip = req.ip || '127.0.0.1';
-    return this.authService.verifyOtpAndLogin(identifier, code, userAgent, ip);
+  @GrpcMethod(AUTH_SERVICE_NAME, 'Login')
+  async login(data: LoginRequest): Promise<LoginResponse> {
+    try {
+      
+      const tokens = await this.authService.login(data);
+      
+      return {
+        status: 200,
+        error: '',
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
+      };
+    } catch (e) {
+      return { status: 401, error: 'Invalid credentials', accessToken: '', refreshToken: '' };
+    }
   }
 
-  @Post('refresh')
-  async refresh(
-    @Body('refreshToken') refreshToken: string,
-    @Req() req: any
-  ) {
-    const userAgent = req.headers['user-agent'] || 'Unknown';
-    const ip = req.ip || '127.0.0.1';
-    return this.authService.refreshTokens(refreshToken, userAgent, ip);
+  @GrpcMethod(AUTH_SERVICE_NAME, 'SocialLogin')
+  async socialLogin(data: SocialLoginRequest): Promise<LoginResponse> {
+    try {
+      const result = await this.authService.socialLogin(
+        {
+          email: data.email,
+          firstName: data.firstName,
+          avatarUrl: data.avatarUrl,
+          provider: data.provider,
+          providerId: data.providerId
+        },
+        '127.0.0.1',
+        'Unknown'
+      );
+      return { status: 200, error: '', accessToken: result.accessToken, refreshToken: result.refreshToken };
+    } catch (e) {
+      return { status: 400, error: e.message, accessToken: '', refreshToken: '' };
+    }
   }
 
-  @Post('logout')
-  async logout(@Body('refreshToken') refreshToken: string) {
-    await this.authService.logout(refreshToken);
-    return { message: 'Logged out successfully' };
+  @GrpcMethod(AUTH_SERVICE_NAME, 'Validate')
+  async validate(data: ValidateRequest): Promise<ValidateResponse> {
+    try {
+      const result = await this.authService.validateToken(data.token);
+      return { status: 200, error: '', userId: typeof result.id === 'string' ? parseInt(result.id) : result.id };
+    } catch (e) {
+      return { status: 401, error: 'Invalid token', userId: 0 };
+    }
   }
 
-  @UseGuards(AuthGuard('jwt'))
-  @Get('me')
-  getProfile(@CurrentUser() user: any) {
-    return { message: 'This is protected data', user };
+  @GrpcMethod(AUTH_SERVICE_NAME, 'Refresh')
+  async refresh(data: RefreshRequest): Promise<LoginResponse> {
+    try {
+      const result = await this.authService.refreshTokens(data.refreshToken, '127.0.0.1', 'Unknown');
+      return { status: 200, error: '', accessToken: result.accessToken, refreshToken: result.refreshToken };
+    } catch (e) {
+      return { status: 401, error: 'Invalid Refresh Token', accessToken: '', refreshToken: '' };
+    }
   }
 
-  @Get('google')
-  @UseGuards(AuthGuard('google'))
-  async googleAuth(@Req() req) {
-  }
-
-  @Get('google/callback')
-  @UseGuards(AuthGuard('google'))
-  async googleAuthRedirect(@Req() req, @Res() res) {
-    const userAgent = req.headers['user-agent'] || 'Unknown';
-    const ip = req.ip || '127.0.0.1';
-
-    const tokens = await this.authService.validateOAuthLogin(req.user, userAgent, ip);
-
-    return res.json({ 
-      message: 'Google Login Successful',
-      user: req.user,
-      tokens 
-    });
-    
-    // for real app, you would typically set a cookie or redirect with the token
-    // res.redirect(`http://localhost:3000/login/success?token=${tokens.accessToken}`);
+  @GrpcMethod(AUTH_SERVICE_NAME, 'Logout')
+  async logout(data: LogoutRequest): Promise<LogoutResponse> {
+    const result = await this.authService.logout(data.refreshToken);
+    return { success: result.success };
   }
 }

@@ -1,20 +1,26 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-:root {
-  background-color: #fdfdfd;
-  color: #0a0a0a;
+@theme {
+  --color-ink-black: #111111;
+  --color-paper-white: #f8f8f4;
 }
 
-@layer utilities {
-  .bg-dot-pattern {
-    background-image: radial-gradient(#0a0a0a 1px, transparent 1px);
-    background-size: 10px 10px;
-    opacity: 0.1;
-  }
+@utility heavy-border {
+  border: 3px solid var(--color-ink-black);
+}
 
-  .heavy-border {
-    @apply border-3 border-ink-black shadow-solid transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-solid-sm;
+@utility shadow-solid {
+  box-shadow: 4px 4px 0px 0px var(--color-ink-black);
+}
+
+@utility bg-dot-pattern {
+  background-image: radial-gradient(var(--color-ink-black) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-paper-white);
+    color: var(--color-ink-black);
   }
 }

@@ -10,6 +10,7 @@ import { lastValueFrom } from 'rxjs';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { SocialLoginDto } from './dto/social-login.dto';
+import { ForgotPasswordDto, ResetPasswordDto } from './dto/password-reset.dto';
 
 @Injectable()
 export class AuthService implements OnModuleInit {
@@ -57,4 +58,19 @@ export class AuthService implements OnModuleInit {
     providerId: data.providerId,
   }));
 }
+  async forgotPassword(email: string) {
+    return lastValueFrom(
+      this.authService.forgotPassword({ email })
+    );
+  }
+
+  async resetPassword(dto: ResetPasswordDto) {
+    return lastValueFrom(
+      this.authService.resetPassword({
+        email: dto.email,
+        code: dto.code,
+        newPassword: dto.newPassword,
+      })
+    );
+  }
 }

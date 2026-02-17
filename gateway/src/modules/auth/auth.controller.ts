@@ -4,7 +4,8 @@ import { ApiOperation, ApiResponse, ApiTags, ApiBody } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
-import { SendOtpRequest } from './dto/requests/send-otp.request';
+import { ForgotPasswordDto, ResetPasswordDto } from './dto/password-reset.dto';
+
 
 
 @ApiTags('Auth')
@@ -83,10 +84,10 @@ export class AuthController {
   }
 
   @Post('social-login')
-@ApiOperation({ summary: 'Login or Register via Social Provider' })
-async socialLogin(
-  @Body() dto: any,
-  @Res({ passthrough: true }) res: Response
+  @ApiOperation({ summary: 'Login or Register via Social Provider' })
+    async socialLogin(
+      @Body() dto: any,
+      @Res({ passthrough: true }) res: Response
 ) {
   const result = await this.authService.socialLogin(dto);
 
@@ -109,5 +110,28 @@ async socialLogin(
     status: result.status 
   };
 }
+@Post('forgot-password')
+  @ApiOperation({ summary: 'Request password reset' })
+  async forgotPassword(@Body() dto: ForgotPasswordDto) {
+    return this.authService.forgotPassword(dto.email);
+  }
+
+  @Post('reset-password')
+  @ApiOperation({ summary: 'Reset password with OTP' })
+  async resetPassword(
+    @Body() dto: ResetPasswordDto,
+    @Res({ passthrough: true }) res: Response
+  ) {
+    const result = await this.authService.resetPassword(dto);
+    
+    if (result.refreshToken) {
+      this.setRefreshCookie(res, result.refreshToken);
+    }
+    
+    return { 
+      accessToken: result.accessToken, 
+      status: result.status 
+    };
+  }
 
 }

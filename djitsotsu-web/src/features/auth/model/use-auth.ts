@@ -1,17 +1,23 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useGoogleLogin } from '@react-oauth/google';
 import axios from 'axios';
 import { authApi } from '../api/auth.service';
 import type { RegisterFormValues, LoginFormValues } from './validation';
 import { useUserStore } from '../../../entities/user/model/store';
 
+export type AuthView = 'login' | 'register' | 'otp' | 'forgot-email' | 'forgot-reset';
+
 export const useAuth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [view, setView] = useState<'form' | 'otp'>('form');
+  const [view, setView] = useState<AuthView>('login');
   const [tempEmail, setTempEmail] = useState('');
 
   const { setAccessToken, setAuth } = useUserStore();
+
+  useEffect(() => {
+    setError(null);
+  }, [view]);
 
   const handleRegister = async (data: RegisterFormValues) => {
     setIsLoading(true);
@@ -22,7 +28,42 @@ export const useAuth = () => {
       setView('otp');
       return true;
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Registration failed');
+      setError(err.response?.data?.message || 'REGISTRATION FAILED');
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async (email: string) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      await authApi.forgotPassword(email);
+      setTempEmail(email);
+      setView('forgot-reset');
+      return true;
+    } catch (err: any) {
+      setError(err.response?.data?.error || 'EMAIL NOT FOUND');
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResetPassword = async (data: any) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const result = await authApi.resetPassword({ ...data, email: tempEmail });
+      if (result.accessToken) {
+        setAccessToken(result.accessToken);
+        setAuth(result.user, result.accessToken);
+        return true;
+      }
+      return false;
+    } catch (err: any) {
+      setError(err.response?.data?.error || 'INVALID RECOVERY CODE');
       return false;
     } finally {
       setIsLoading(false);
@@ -41,7 +82,7 @@ export const useAuth = () => {
       }
       return false;
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Login failed');
+      setError(err.response?.data?.message || 'ACCESS DENIED');
       return false;
     } finally {
       setIsLoading(false);
@@ -65,12 +106,12 @@ export const useAuth = () => {
           setAuth(result.user || { id: sub, email, nickname: given_name, avatarUrl: picture }, result.accessToken);
         }
       } catch (err: any) {
-        setError(err.response?.data?.message || 'Google Login failed');
+        setError(err.response?.data?.message || 'GOOGLE AUTH PROTOCOL ERROR');
       } finally {
         setIsLoading(false);
       }
     },
-    onError: () => setError('Google Login was canceled'),
+    onError: () => setError('GOOGLE LOGIN CANCELED'),
   });
 
   const handleVerifyOtp = async (code: string) => {
@@ -85,7 +126,7 @@ export const useAuth = () => {
       }
       return false;
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Invalid code');
+      setError(err.response?.data?.message || 'INVALID CODE');
       return false;
     } finally {
       setIsLoading(false);
@@ -94,6 +135,8 @@ export const useAuth = () => {
 
   return {
     handleRegister,
+    handleForgotPassword,
+    handleResetPassword,
     handleLogin,
     loginWithGoogle,
     handleVerifyOtp,

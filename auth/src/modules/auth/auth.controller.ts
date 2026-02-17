@@ -6,7 +6,8 @@ import type {
   LoginRequest, LoginResponse,
   ValidateRequest, ValidateResponse,
   RefreshRequest, LogoutRequest, LogoutResponse,
-  SocialLoginRequest, VerifyOtpRequest, SendOtpRequest, SendOtpResponse
+  SocialLoginRequest, VerifyOtpRequest, SendOtpRequest, SendOtpResponse,
+  ForgotPasswordRequest, ForgotPasswordResponse, ResetPasswordRequest,
 } from '@contracts/auth/auth.generated';
 import { AUTH_SERVICE_NAME } from '@contracts/auth/auth.generated';
 
@@ -19,11 +20,11 @@ export class AuthController {
   @GrpcMethod(AUTH_SERVICE_NAME, 'Register')
   async register(data: RegisterRequest): Promise<RegisterResponse> {
     try {
-      const user = await this.authService.register(data);
+      await this.authService.register(data);
       return {
         status: 201,
         error: '',
-        userId: Number(user.id)
+        userId: 0
       };
     } catch (e) {
       return { status: 400, error: e.message, userId: 0 };
@@ -46,37 +47,37 @@ export class AuthController {
     }
   }
 
-@GrpcMethod(AUTH_SERVICE_NAME, 'SocialLogin')
-async socialLogin(data: SocialLoginRequest): Promise<LoginResponse> {
-  try {
-    const result = await this.authService.socialLogin(
-      {
-        email: data.email,
-        firstName: data.firstName,
-        avatarUrl: data.avatarUrl,
-        provider: data.provider,
-        providerId: data.providerId
-      },
-      '127.0.0.1',
-      'Unknown'
-    );
+  @GrpcMethod(AUTH_SERVICE_NAME, 'SocialLogin')
+  async socialLogin(data: SocialLoginRequest): Promise<LoginResponse> {
+    try {
+      const result = await this.authService.socialLogin(
+        {
+          email: data.email,
+          firstName: data.firstName,
+          avatarUrl: data.avatarUrl,
+          provider: data.provider,
+          providerId: data.providerId
+        },
+        '127.0.0.1',
+        'Unknown'
+      );
 
-    return { 
-      status: 200, 
-      error: '', 
-      accessToken: result.accessToken, 
-      refreshToken: result.refreshToken 
-    };
-  } catch (e) {
-    this.logger.error(`Social Login Error: ${e.message}`);
-    return { 
-      status: 400, 
-      error: e.message, 
-      accessToken: '', 
-      refreshToken: '' 
-    };
+      return { 
+        status: 200, 
+        error: '', 
+        accessToken: result.accessToken, 
+        refreshToken: result.refreshToken 
+      };
+    } catch (e) {
+      this.logger.error(`Social Login Error: ${e.message}`);
+      return { 
+        status: 400, 
+        error: e.message, 
+        accessToken: '', 
+        refreshToken: '' 
+      };
+    }
   }
-}
 
   @GrpcMethod(AUTH_SERVICE_NAME, 'Validate')
   async validate(data: ValidateRequest): Promise<ValidateResponse> {
@@ -110,16 +111,16 @@ async socialLogin(data: SocialLoginRequest): Promise<LoginResponse> {
   }
 
   @GrpcMethod(AUTH_SERVICE_NAME, 'SendOtp')
-async sendOtp(data: SendOtpRequest): Promise<SendOtpResponse> {
-  try {
-    const result = await this.authService.sendOtp(data.identifier);
-    return { success: result.success, message: result.message };
-  } catch (e) {
-    return { success: false, message: e.message };
+  async sendOtp(data: SendOtpRequest): Promise<SendOtpResponse> {
+    try {
+      const result = await this.authService.sendOtp(data.identifier);
+      return { success: result.success, message: result.message };
+    } catch (e) {
+      return { success: false, message: e.message };
+    }
   }
-}
 
-@GrpcMethod(AUTH_SERVICE_NAME, 'VerifyOtp')
+  @GrpcMethod(AUTH_SERVICE_NAME, 'VerifyOtp')
   async verifyOtp(data: VerifyOtpRequest): Promise<LoginResponse> {
     try {
       const result = await this.authService.verifyOtpAndLogin(
@@ -137,6 +138,49 @@ async sendOtp(data: SendOtpRequest): Promise<SendOtpResponse> {
       };
     } catch (e) {
       return { status: 400, error: e.message, accessToken: '', refreshToken: '' };
+    }
+  }
+
+  @GrpcMethod(AUTH_SERVICE_NAME, 'ForgotPassword')
+  async forgotPassword(data: ForgotPasswordRequest): Promise<ForgotPasswordResponse> {
+    try {
+      const result = await this.authService.forgotPassword(data.email);
+      return { 
+        success: true, 
+        message: result.message || 'Code sent to email' 
+      };
+    } catch (e) {
+      this.logger.error(`Forgot Password Error: ${e.message}`);
+      return { 
+        success: false, 
+        message: e.message 
+      };
+    }
+  }
+
+  @GrpcMethod(AUTH_SERVICE_NAME, 'ResetPassword')
+  async resetPassword(data: ResetPasswordRequest): Promise<LoginResponse> {
+    try {
+      const result = await this.authService.resetPassword({
+        email: data.email,
+        code: data.code,
+        new_password: data.newPassword || (data as any).new_password, 
+      });
+
+      return {
+        status: 200,
+        error: '',
+        accessToken: result.accessToken,
+        refreshToken: result.refreshToken,
+      };
+    } catch (e) {
+      this.logger.error(`Reset Password Error: ${e.message}`);
+      return { 
+        status: 400, 
+        error: e.message, 
+        accessToken: '', 
+        refreshToken: '' 
+      };
     }
   }
 }

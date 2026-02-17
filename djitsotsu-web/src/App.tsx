@@ -1,6 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { LoginPage } from './pages/LoginPage';
-import { RegisterPage } from './pages/RegisterPage';
+import { AuthPage } from './pages/AuthPage';
 import { useUserStore } from './entities/user/model/store';
 
 function App() {
@@ -8,14 +7,9 @@ function App() {
 
   return (
     <Routes>
-      <Route 
-        path="/login" 
-        element={!isAuth ? <LoginPage /> : <Navigate to="/" replace />} 
-      />
-      <Route 
-        path="/register" 
-        element={!isAuth ? <RegisterPage /> : <Navigate to="/" replace />} 
-      />
+      <Route path="/login" element={<AuthPage />} />
+      <Route path="/register" element={<AuthPage />} />
+      <Route path="/forgot-password" element={<AuthPage />} />
       
       <Route 
         path="/" 

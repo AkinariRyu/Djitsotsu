@@ -8,6 +8,7 @@ import { JwtStrategy } from './modules/auth/strategies/jwt.strategy';
 import { PrismaService } from './core/database/prisma.service';
 import { RedisModule } from './core/database/redis.module';
 import { GoogleStrategy } from './modules/auth/strategies/google.strategy';
+import { MailService } from './core/mail/mail.service';
 
 @Module({
   imports: [
@@ -24,7 +25,7 @@ import { GoogleStrategy } from './modules/auth/strategies/google.strategy';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, GoogleStrategy, PrismaService],
+  providers: [AuthService, JwtStrategy, GoogleStrategy, PrismaService, MailService],
   exports: [AuthService],
 })
 export class AuthModule {}

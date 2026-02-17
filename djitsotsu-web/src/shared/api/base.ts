@@ -6,6 +6,9 @@ const API_URL = import.meta.env.VITE_API_URL;
 export const apiClient = axios.create({
   baseURL: API_URL,
   withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
 
 apiClient.interceptors.request.use((config) => {
@@ -23,17 +26,23 @@ apiClient.interceptors.response.use(
 
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
+      
       try {
-        const response = await axios.post(`${API_URL}/refresh`, {}, { withCredentials: true });
+        const response = await axios.post(
+          `${API_URL}/refresh`,
+          {}, 
+          { withCredentials: true }
+        );
         
-        const newAccessToken = response.data.accessToken;
+        const { accessToken } = response.data;
         
-        useUserStore.getState().setAccessToken(newAccessToken);
+        useUserStore.getState().setAccessToken(accessToken);
 
-        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+        originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         return apiClient(originalRequest);
         
       } catch (refreshError) {
+        console.error("Refresh token expired or invalid");
         useUserStore.getState().logout();
         return Promise.reject(refreshError);
       }
